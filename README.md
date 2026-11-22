@@ -1,3 +1,23 @@
+# SmartTube Clean (unofficial fork)
+
+A personal, unofficial fork of [SmartTube](https://github.com/yuliskov/SmartTube) by yuliskov. It gives the app a clean "glass" interface and changes a few behaviours. Everything else is upstream SmartTube, and all credit for the app goes to its author and contributors.
+
+- Not affiliated with or supported by the SmartTube project. Report problems with this fork in this repository, not upstream.
+- For the official app, its downloads and donations, go to the [original project](https://github.com/yuliskov/SmartTube).
+- No APKs are published here. The fork installs next to the official app under its own id (`app.smarttube.clean`).
+
+What is different (branch `clean`, flavor `stfdroid`):
+
+- Player: controls on one glass panel, compact title with chapter line, a "More" button for everything that is not on the bar
+- SponsorBlock: checks four times per second and skips just before a segment starts, a small glass notification, OK right after a skip jumps back
+- Browse, settings and search: gradient backdrop, translucent side bar, cards without a box, glass panels, for every colour scheme
+- No system navigation sound while moving through the app
+- `clean/update.ps1` merges upstream SmartTube and builds; `art/make-icons.ps1` renders the launcher art
+
+The original README follows.
+
+---
+
 [<img src="images/badge_fdroid.png" alt="Get it on F-Droid" height="80">](https://f-droid.org/packages/app.smarttube.fdroid/)
 [<img src="images/badge_github.png" alt="Get it on GitHub" height="80">](https://github.com/yuliskov/SmartTube/releases)
 

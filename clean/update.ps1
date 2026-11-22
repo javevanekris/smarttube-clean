@@ -2,7 +2,7 @@
 #
 # Usage (from the repo root):
 #   clean\update.ps1                         merge upstream and build
-#   clean\update.ps1 -TvHost 192.168.2.11    the same, then install on the TV
+#   clean\update.ps1 -TvHost 192.168.1.50    the same, then install on the TV
 #   clean\update.ps1 -SkipMerge -TvHost ...  only build and install what is checked out
 #
 # The TV step is refused while a video is playing, because installing closes the app. Use -Force to do it anyway.
