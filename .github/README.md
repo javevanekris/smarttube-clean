@@ -53,13 +53,23 @@ Player controls:
 - Own launcher icon and banner
 - Installs next to the official app under its own id, `app.smarttube.clean`
 
+## Design rules
+
+The look borrows from Apple's Liquid Glass, with the lessons from its critics taken along:
+
+- Glass is for the layer you operate: the player controls, the side bar, panels and notifications. Content such as video cards stays plain
+- No glass on glass. A focused row inside a panel is a flat highlight, not a second sheet
+- More frost where there is text. Panels with text are almost opaque, controls over video are clearer
+- Each surface has a tint for contrast, a soft sheen, a hairline edge and a light catch on the top edge
+- Glass can be tinted: the side bar picks up the colour of the chosen scheme
+
 ## What is the same
 
 Everything else. For features, device support and the FAQ, read the [original README](../README.md).
 
 ## Limits
 
-- The glass is drawn with translucent layers. There is no real background blur, because older Android TV versions cannot do that
+- The glass is drawn with translucent layers. There is no real background blur and no refraction, because older Android TV versions cannot do that
 - Tested on a single TV running Android 10. Other devices are untested
 - A personal project without support. If something breaks only in this fork, open an issue here and not in the SmartTube project
 

@@ -43,6 +43,9 @@
     <!-- CLEAN UI: glass surfaces shared by all colour schemes -->
     <color name="clean_glass_side_bar">@color/scheme_grey_background_dark</color>
     <color name="clean_glass_chip">@color/scheme_grey_card_background_dark</color>
+    <!-- CLEAN UI: tinted glass, the side bar picks up the colour of its scheme -->
+    <color name="clean_glass_side_bar_red">#1FFF8A8A</color>
+    <color name="clean_glass_side_bar_blue">#1F8AC4FF</color>
 
     <!-- Dark color scheme -->
     <color name="scheme_grey_background">#181818</color>

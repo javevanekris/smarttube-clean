@@ -1,9 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- CLEAN UI: glass panel. Same recipe as the pill, with a card radius. -->
+<!--
+    CLEAN UI: clear glass, for controls that float over video.
+    Three layers: a dark tint that keeps white icons readable on a bright picture,
+    a soft sheen (illumination) and a hairline edge. API 23+ adds a light catch on the edge, see drawable-v23.
+-->
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
     <item>
         <shape android:shape="rectangle">
-            <solid android:color="#8C101114" />
+            <solid android:color="#A6101114" />
             <corners android:radius="28dp" />
         </shape>
     </item>
@@ -11,11 +15,11 @@
         <shape android:shape="rectangle">
             <gradient
                 android:angle="270"
-                android:startColor="#33FFFFFF"
-                android:endColor="#0AFFFFFF"
+                android:startColor="#26FFFFFF"
+                android:endColor="#08FFFFFF"
                 android:type="linear" />
             <corners android:radius="28dp" />
-            <stroke android:width="1dp" android:color="#47FFFFFF" />
+            <stroke android:width="1dp" android:color="#3DFFFFFF" />
         </shape>
     </item>
 </layer-list>
