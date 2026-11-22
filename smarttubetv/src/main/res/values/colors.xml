@@ -40,6 +40,9 @@
     <color name="card_clean_content">#99FFFFFF</color>
     <color name="card_clean_content_selected">#CCFFFFFF</color>
     <color name="card_focus_outline">#FFFFFFFF</color>
+    <!-- CLEAN UI: glass surfaces shared by all colour schemes -->
+    <color name="clean_glass_side_bar">@color/scheme_grey_background_dark</color>
+    <color name="clean_glass_chip">@color/scheme_grey_card_background_dark</color>
 
     <!-- Dark color scheme -->
     <color name="scheme_grey_background">#181818</color>

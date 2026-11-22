@@ -44,6 +44,8 @@ public class AppDialogPresenter extends BasePresenter<AppDialogView> {
         mHandler = new Handler(Looper.getMainLooper());
     }
 
+    private int mShowCount;
+
     public static AppDialogPresenter instance(Context context) {
         if (sInstance == null) {
             sInstance = new AppDialogPresenter(context);
@@ -121,7 +123,15 @@ public class AppDialogPresenter extends BasePresenter<AppDialogView> {
         showDialog(null, onFinish);
     }
 
+    /**
+     * CLEAN UI: number of dialogs requested so far. Lets a caller see whether its callback opened another dialog.
+     */
+    public int getShowCount() {
+        return mShowCount;
+    }
+
     public void showDialog(CharSequence dialogTitle, Runnable onFinish) {
+        mShowCount++;
         mTitle = dialogTitle;
         mOnFinish.add(onFinish);
         

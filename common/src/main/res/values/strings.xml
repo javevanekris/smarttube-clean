@@ -69,6 +69,7 @@
     <string name="subtitle_style">Subtitle style</string>
     <string name="subtitle_language">Subtitle language</string>
     <string name="action_search">Search</string>
+    <string name="action_more">More</string>
     <string name="settings_main_ui">User interface</string>
     <string name="dialog_main_ui">User interface</string>
     <string name="card_animated_previews">Animated previews</string>
@@ -197,6 +198,8 @@
     <string name="confirm_segment_skip">Skip segment \"%s\"\?</string>
     <string name="cancel_segment_skip">Cancel segment skip</string>
     <string name="msg_skipping_segment">Skipping segment \"%s\"…</string>
+    <string name="msg_segment_skipped_undo">%s skipped · OK to go back</string>
+    <string name="msg_segment_skip_undone">Back in the skipped part</string>
     <string name="content_block_notification_type">Notification type</string>
     <string name="content_block_notify_none">Without notification</string>
     <string name="content_block_notify_toast">Toast</string>

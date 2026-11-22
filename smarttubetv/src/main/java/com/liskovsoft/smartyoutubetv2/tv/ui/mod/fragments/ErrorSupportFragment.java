@@ -173,6 +173,17 @@ public class ErrorSupportFragment extends BrandedSupportFragment {
         mButton = (Button) root.findViewById(R.id.button);
         updateButton();
 
+        // CLEAN UI: glass button, calmer text and picture
+        int buttonPadding = (int) (28 * getResources().getDisplayMetrics().density);
+        mButton.setBackgroundResource(com.liskovsoft.smartyoutubetv2.tv.R.drawable.glass_button_bg);
+        mButton.setPadding(buttonPadding, 0, buttonPadding, 0);
+        mButton.setAllCaps(false);
+        mButton.setTextColor(new android.content.res.ColorStateList(
+                new int[][] {new int[] {android.R.attr.state_focused}, new int[] {}},
+                new int[] {0xFF101114, 0xFFFFFFFF}));
+        mTextView.setTextColor(0xE6FFFFFF);
+        mImageView.setAlpha(0.6f);
+
         FontMetricsInt metrics = getFontMetricsInt(mTextView);
         int underImageBaselineMargin = container.getResources().getDimensionPixelSize(
                 R.dimen.lb_error_under_image_baseline_margin);

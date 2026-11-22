@@ -21,6 +21,7 @@ import com.liskovsoft.smartyoutubetv2.common.app.presenters.settings.SponsorBloc
 import com.liskovsoft.smartyoutubetv2.common.prefs.SponsorBlockData;
 import com.liskovsoft.sharedutils.rx.RxHelper;
 import com.liskovsoft.smartyoutubetv2.common.utils.CleanToast;
+import android.view.KeyEvent;
 import com.liskovsoft.smartyoutubetv2.common.utils.Utils;
 import com.liskovsoft.youtubeapi.service.YouTubeServiceManager;
 import io.reactivex.Observable;
@@ -43,6 +44,10 @@ public class SponsorBlockController extends BasePlayerController {
     private Disposable mSegmentsAction;
     private Observable<List<SponsorSegment>> mCachedSegmentsAction;
     private String mVideoId;
+    // CLEAN UI: OK right after a skip jumps back into the skipped segment
+    private static final long UNDO_WINDOW_MS = 4_000;
+    private SponsorSegment mUndoSegment;
+    private long mUndoDeadlineMs;
 
     public static class SegmentAction {
         public String segmentCategory;
@@ -88,6 +93,7 @@ public class SponsorBlockController extends BasePlayerController {
 
     @Override
     public void onNewVideo(Video item) {
+        mUndoSegment = null;
         mSkipExclude = false;
         if (getPlayer() != null) {
             getPlayer().setSeekBarSegments(null); // reset colors
@@ -270,15 +276,46 @@ public class SponsorBlockController extends BasePlayerController {
         closeTransparentDialog();
     }
 
-    private void messageSkip(long skipPosMs, String category) {
+    private void messageSkip(long skipPosMs, String category, SponsorSegment segment) {
         if (mLastSkipPosMs == skipPosMs) {
             return;
         }
 
         // CLEAN UI: compact glass notification instead of the system toast
-        CleanToast.show(getContext(), getContext().getString(R.string.msg_skipping_segment, category));
+        mUndoSegment = segment;
+        mUndoDeadlineMs = System.currentTimeMillis() + UNDO_WINDOW_MS;
+        CleanToast.show(getContext(), getContext().getString(R.string.msg_segment_skipped_undo, category), true);
         setPositionMs(skipPosMs);
         closeTransparentDialog();
+    }
+
+    /**
+     * CLEAN UI: undo the last skip when OK is pressed shortly after it.
+     * @return true when the key was used for the undo
+     */
+    public boolean undoLastSkip(int keyCode) {
+        boolean isConfirm = keyCode == KeyEvent.KEYCODE_DPAD_CENTER || keyCode == KeyEvent.KEYCODE_ENTER || keyCode == KeyEvent.KEYCODE_NUMPAD_ENTER;
+        SponsorSegment segment = mUndoSegment;
+
+        if (!isConfirm || segment == null || getPlayer() == null) {
+            return false;
+        }
+
+        mUndoSegment = null;
+
+        if (System.currentTimeMillis() > mUndoDeadlineMs || getPlayer().isOverlayShown()) {
+            return false;
+        }
+
+        if (mActiveSegments != null) {
+            mActiveSegments.remove(segment); // watch it this time
+        }
+
+        mLastSkipPosMs = 0;
+        getPlayer().setPositionMs(Math.max(0, segment.getStartMs()));
+        CleanToast.show(getContext(), getContext().getString(R.string.msg_segment_skip_undone));
+
+        return true;
     }
 
     private void confirmSkip(long skipPosMs, String category) {
@@ -406,7 +443,7 @@ public class SponsorBlockController extends BasePlayerController {
             if (type == SponsorBlockData.ACTION_SKIP_ONLY || getPlayer().isInPIPMode() || Utils.isScreenOff(getContext()) || isEmbedPlayer()) {
                 simpleSkip(skipPosMs);
             } else if (type == SponsorBlockData.ACTION_SKIP_WITH_TOAST) {
-                messageSkip(skipPosMs, skipMessage);
+                messageSkip(skipPosMs, skipMessage, lastSegment);
             } else if (type == SponsorBlockData.ACTION_SHOW_DIALOG) {
                 confirmSkip(skipPosMs, skipMessage);
             }

@@ -67,6 +67,10 @@ public final class ProgressBarManager {
         progressBarView.setIndeterminate(true);
         progressBarView.setIndeterminateDrawable(
                 ContextCompat.getDrawable(rootView.getContext(), R.drawable.progress_large_holo));
+        // CLEAN UI: neutral white spinner instead of the holo blue one
+        if (progressBarView.getIndeterminateDrawable() != null) {
+            progressBarView.getIndeterminateDrawable().mutate().setColorFilter(0xE6FFFFFF, android.graphics.PorterDuff.Mode.SRC_IN);
+        }
 
         FrameLayout.LayoutParams progressBarParams = new FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.WRAP_CONTENT,

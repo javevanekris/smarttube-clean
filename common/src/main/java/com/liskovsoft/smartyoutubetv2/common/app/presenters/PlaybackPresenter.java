@@ -364,6 +364,12 @@ public class PlaybackPresenter extends BasePresenter<PlaybackView> implements Pl
 
     @Override
     public boolean onKeyDown(int keyCode) {
+        // CLEAN UI: OK right after a skipped segment jumps back into it
+        SponsorBlockController sponsorBlock = getController(SponsorBlockController.class);
+        if (sponsorBlock != null && sponsorBlock.undoLastSkip(keyCode)) {
+            return true;
+        }
+
         return chainProcess(listener -> listener.onKeyDown(keyCode));
     }
 

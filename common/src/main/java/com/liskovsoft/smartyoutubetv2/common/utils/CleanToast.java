@@ -27,6 +27,10 @@ public final class CleanToast {
     }
 
     public static void show(Context ctx, CharSequence text) {
+        show(ctx, text, false);
+    }
+
+    public static void show(Context ctx, CharSequence text, boolean longDuration) {
         if (ctx == null || TextUtils.isEmpty(text)) {
             return;
         }
@@ -42,7 +46,7 @@ public final class CleanToast {
 
                 Toast toast = new Toast(context);
                 toast.setView(view);
-                toast.setDuration(Toast.LENGTH_SHORT);
+                toast.setDuration(longDuration ? Toast.LENGTH_LONG : Toast.LENGTH_SHORT);
                 toast.setGravity(Gravity.TOP | Gravity.END, margin, margin);
 
                 Toast last = sLastToast != null ? sLastToast.get() : null;

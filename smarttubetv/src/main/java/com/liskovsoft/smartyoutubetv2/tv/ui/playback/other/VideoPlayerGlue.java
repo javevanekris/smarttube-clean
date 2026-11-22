@@ -35,6 +35,10 @@ import com.liskovsoft.smartyoutubetv2.tv.ui.playback.actions.ClosedCaptioningAct
 import com.liskovsoft.smartyoutubetv2.tv.ui.playback.actions.ContentBlockAction;
 import com.liskovsoft.smartyoutubetv2.tv.ui.playback.actions.FlipAction;
 import com.liskovsoft.smartyoutubetv2.tv.ui.playback.actions.HighQualityAction;
+import com.liskovsoft.smartyoutubetv2.tv.ui.playback.actions.MoreAction;
+import com.liskovsoft.smartyoutubetv2.common.app.models.playback.ui.OptionItem;
+import com.liskovsoft.smartyoutubetv2.common.app.models.playback.ui.UiOptionItem;
+import com.liskovsoft.smartyoutubetv2.common.app.presenters.AppDialogPresenter;
 import com.liskovsoft.smartyoutubetv2.tv.ui.playback.actions.RotateAction;
 import com.liskovsoft.smartyoutubetv2.tv.ui.playback.actions.ScreenDimmingAction;
 import com.liskovsoft.smartyoutubetv2.tv.ui.playback.actions.SeekIntervalAction;
@@ -55,7 +59,11 @@ import com.liskovsoft.smartyoutubetv2.tv.ui.playback.actions.VideoStatsAction;
 import com.liskovsoft.smartyoutubetv2.tv.ui.playback.actions.VideoZoomAction;
 import com.liskovsoft.smartyoutubetv2.tv.util.ViewUtil;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -84,6 +92,36 @@ public class VideoPlayerGlue extends MaxControlsVideoPlayerGlue<PlayerAdapter> i
     private final PlaybackControlsRow.FastForwardAction mFastForwardAction;
     private final PlaybackControlsRow.RewindAction mRewindAction;
     private final Map<Integer, Action> mActions = new HashMap<>();
+    // CLEAN UI: buttons that are switched off in the settings stay reachable through the "More" button.
+    // Pairs of {button flag, action id}, in the order of the list.
+    private static final int[][] MORE_ACTIONS = {
+            {PlayerTweaksData.PLAYER_BUTTON_PLAYBACK_QUEUE, R.id.action_playback_queue},
+            {PlayerTweaksData.PLAYER_BUTTON_ADD_TO_PLAYLIST, R.id.action_playlist_add},
+            {PlayerTweaksData.PLAYER_BUTTON_VIDEO_INFO, R.id.action_info},
+            {PlayerTweaksData.PLAYER_BUTTON_OPEN_CHANNEL, R.id.action_channel},
+            {PlayerTweaksData.PLAYER_BUTTON_CHAT, R.id.action_chat},
+            {PlayerTweaksData.PLAYER_BUTTON_REPEAT_MODE, R.id.action_repeat},
+            {PlayerTweaksData.PLAYER_BUTTON_VIDEO_SPEED, R.id.action_video_speed},
+            {PlayerTweaksData.PLAYER_BUTTON_HIGH_QUALITY, R.id.lb_control_high_quality},
+            {PlayerTweaksData.PLAYER_BUTTON_SUBTITLES, R.id.lb_control_closed_captioning},
+            {PlayerTweaksData.PLAYER_BUTTON_LIKE, R.id.action_thumbs_up},
+            {PlayerTweaksData.PLAYER_BUTTON_DISLIKE, R.id.action_thumbs_down},
+            {PlayerTweaksData.PLAYER_BUTTON_SUBSCRIBE, R.id.action_subscribe},
+            {PlayerTweaksData.PLAYER_BUTTON_PIP, R.id.action_pip},
+            {PlayerTweaksData.PLAYER_BUTTON_SEARCH, R.id.action_search},
+            {PlayerTweaksData.PLAYER_BUTTON_SHARE, R.id.action_share},
+            {PlayerTweaksData.PLAYER_BUTTON_CONTENT_BLOCK, R.id.action_content_block},
+            {PlayerTweaksData.PLAYER_BUTTON_VIDEO_STATS, R.id.action_video_stats},
+            {PlayerTweaksData.PLAYER_BUTTON_SEEK_INTERVAL, R.id.action_seek_interval},
+            {PlayerTweaksData.PLAYER_BUTTON_VIDEO_ZOOM, R.id.action_video_zoom},
+            {PlayerTweaksData.PLAYER_BUTTON_VIDEO_ROTATE, R.id.action_rotate},
+            {PlayerTweaksData.PLAYER_BUTTON_VIDEO_FLIP, R.id.action_flip},
+            {PlayerTweaksData.PLAYER_BUTTON_SOUND_OFF, R.id.action_sound_off},
+            {PlayerTweaksData.PLAYER_BUTTON_SCREEN_DIMMING, R.id.action_screen_dimming},
+            {PlayerTweaksData.PLAYER_BUTTON_AFR, R.id.action_afr}
+    };
+    private final Set<Integer> mDisabledActionIds = new HashSet<>();
+    private final Action mMoreAction;
     private final OnActionClickedListener mActionListener;
     private final PlayerTweaksData mPlayerTweaksData;
     private final GeneralData mGeneralData;
@@ -134,6 +172,8 @@ public class VideoPlayerGlue extends MaxControlsVideoPlayerGlue<PlayerAdapter> i
         putAction(new RotateAction(context));
         putAction(new FlipAction(context));
         putAction(new SoundOffAction(context));
+
+        mMoreAction = new MoreAction(context);
     }
 
     @Override
@@ -236,6 +276,10 @@ public class VideoPlayerGlue extends MaxControlsVideoPlayerGlue<PlayerAdapter> i
         }
         if (mPlayerTweaksData.isPlayerButtonEnabled(PlayerTweaksData.PLAYER_BUTTON_VIDEO_STATS)) {
             adapter.add(mActions.get(R.id.action_video_stats));
+        }
+        // CLEAN UI: everything that has no button on the bar
+        if (!getMoreActions().isEmpty()) {
+            adapter.add(mMoreAction);
         }
     }
 
@@ -397,6 +441,9 @@ public class VideoPlayerGlue extends MaxControlsVideoPlayerGlue<PlayerAdapter> i
         } else if (action == mFastForwardAction) {
             fastForward();
             handled = true;
+        } else if (action == mMoreAction) {
+            showMoreDialog();
+            handled = true;
         } else if (mActions.containsKey((int) action.getId())) {
             mActionListener.onAction((int) action.getId(), getActionIndex(action));
             handled = true;
@@ -517,6 +564,50 @@ public class VideoPlayerGlue extends MaxControlsVideoPlayerGlue<PlayerAdapter> i
         return action;
     }
 
+    /**
+     * CLEAN UI: actions that have no button on the bar and can be used for the current video.
+     */
+    private List<Action> getMoreActions() {
+        List<Action> result = new ArrayList<>();
+
+        for (int[] item : MORE_ACTIONS) {
+            Action action = mActions.get(item[1]);
+
+            if (action != null && action.getLabel1() != null && !mPlayerTweaksData.isPlayerButtonEnabled(item[0])
+                    && !mDisabledActionIds.contains(item[1])) {
+                result.add(action);
+            }
+        }
+
+        return result;
+    }
+
+    private void showMoreDialog() {
+        AppDialogPresenter dialog = AppDialogPresenter.instance(getContext());
+        List<OptionItem> options = new ArrayList<>();
+
+        for (Action action : getMoreActions()) {
+            options.add(UiOptionItem.from(action.getLabel1(), optionItem -> {
+                int shownBefore = dialog.getShowCount();
+
+                dispatchAction(action);
+
+                // A switch has nothing more to show. A button with its own menu has replaced this list by now.
+                if (dialog.getShowCount() == shownBefore) {
+                    dialog.closeDialog();
+                }
+            }));
+        }
+
+        if (options.isEmpty()) {
+            return;
+        }
+
+        CharSequence title = getContext().getString(R.string.action_more);
+        dialog.appendStringsCategory(title, options);
+        dialog.showDialog(title);
+    }
+
     private void putAction(Action action) {
         mActions.put((int) action.getId(), action);
     }
@@ -531,6 +622,14 @@ public class VideoPlayerGlue extends MaxControlsVideoPlayerGlue<PlayerAdapter> i
     }
 
     private void setActionIndex(Action action, int actionIndex) {
+        if (action != null) {
+            if (actionIndex == -1) {
+                mDisabledActionIds.add((int) action.getId());
+            } else {
+                mDisabledActionIds.remove((int) action.getId());
+            }
+        }
+
         if (actionIndex == -1) { // button disabled
             disableAction(action);
         } else if (action instanceof MultiAction) {

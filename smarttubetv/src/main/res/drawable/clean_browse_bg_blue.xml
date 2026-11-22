@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- CLEAN UI: backdrop for the blue colour scheme -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <gradient
+        android:angle="315"
+        android:startColor="#15293F"
+        android:centerColor="#0A111A"
+        android:endColor="#050506"
+        android:type="linear" />
+</shape>

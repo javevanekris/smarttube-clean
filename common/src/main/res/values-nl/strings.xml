@@ -192,6 +192,9 @@
     <string name="confirm_segment_skip">Wil je\‘%s\’ overslaan \?</string>
     <string name="cancel_segment_skip">Niet overslaan</string>
     <string name="msg_skipping_segment">\‘%s\’ wordt overgeslagen…</string>
+    <string name="msg_segment_skipped_undo">%s overgeslagen · OK = terug</string>
+    <string name="msg_segment_skip_undone">Terug in het overgeslagen stuk</string>
+    <string name="action_more">Meer</string>
     <string name="content_block_notification_type">Meldingen</string>
     <string name="content_block_notify_none">Geen melding weergeven</string>
     <string name="content_block_notify_toast">Melding weergeven</string>
