@@ -125,6 +125,7 @@ android {
         variant.outputs.all { output ->
             def project = "SmartTube"
             def flavor = variant.productFlavors[-1].name.substring(2) // remove st prefix
+            if (flavor == "fdroid") flavor = "Clean" // CLEAN UI fork: own name in the APK file
             def buildType = variant.buildType.name.take(1)
             def version = variant.versionName
             def arch = output.getFilter(com.android.build.OutputFile.ABI)

@@ -71,3 +71,7 @@ tmp/
 fabric.properties
 *BAK.java
 hs_err_pid*.log
+
+# CLEAN UI fork: signing config stays local
+keystore.properties
+*.jks
