@@ -200,7 +200,8 @@ public class BrowseFragment extends BrowseSupportFragment implements BrowseView 
         setBrandColor(ContextCompat.getColor(getContext(), brandColorRes));
 
         // Set search icon color.
-        setSearchAffordanceColor(ContextCompat.getColor(getContext(), brandAccentColorRes));
+        // CLEAN UI: neutral search button, same look as the account button (upstream: brandAccentColorRes)
+        setSearchAffordanceColor(ContextCompat.getColor(getContext(), R.color.orb_color));
 
         setHeaderPresenterSelector(new PresenterSelector() {
             private final Map<Integer, Presenter> mPresenterMap = new HashMap<>();
@@ -524,6 +525,7 @@ public class BrowseFragment extends BrowseSupportFragment implements BrowseView 
         Drawable bridgeIcon = Utils.getDrawable(getContext(), splashPresenter.getBridgePackageName(), "app_icon");
 
         // Top right corner logo
-        setBadgeDrawable(bridgeIcon != null ? bridgeIcon : appLogoRes > 0 ? ContextCompat.getDrawable(getContext(), appLogoRes) : null);
+        // CLEAN UI: no app logo in the corner (upstream: falls back to appLogoRes)
+        setBadgeDrawable(bridgeIcon);
     }
 }

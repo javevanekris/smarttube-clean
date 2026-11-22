@@ -16,6 +16,8 @@ public class CustomVerticalGridPresenter extends VerticalGridPresenter {
 
     public CustomVerticalGridPresenter(int layoutResId, int rootResId) {
         super(ViewUtil.FOCUS_ZOOM_FACTOR, ViewUtil.FOCUS_DIMMER_ENABLED);
+        // CLEAN UI: cards have no box anymore, so a drop shadow would show as a dark rectangle
+        setShadowEnabled(false);
 
         mLayoutResId = layoutResId;
         mRootResId = rootResId;

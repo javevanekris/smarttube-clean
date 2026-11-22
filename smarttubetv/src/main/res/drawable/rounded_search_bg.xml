@@ -1,8 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- CLEAN UI: glass search field. The search bar applies its own alpha to this drawable. -->
 <shape xmlns:android="http://schemas.android.com/apk/res/android">
     <solid android:color="#EEEEEE"/>
-
+    <stroke android:width="2dp" android:color="#FFFFFF"/>
     <corners android:radius="30dp"/>
-
     <padding
         android:left="6dp"
         android:top="6dp"

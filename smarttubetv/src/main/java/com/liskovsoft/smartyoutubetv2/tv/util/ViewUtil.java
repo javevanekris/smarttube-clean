@@ -212,6 +212,22 @@ public class ViewUtil {
         }
     }
 
+    /**
+     * CLEAN UI: the settings panel is translucent glass. A drop shadow would show through it.
+     */
+    public static void disableDialogShadow(View rootView) {
+        if (rootView == null || VERSION.SDK_INT < 21) {
+            return;
+        }
+
+        View mainContainer = rootView.findViewById(R.id.settings_preference_fragment_container);
+
+        if (mainContainer instanceof FrameLayout) {
+            // No background on the container means no outline and so no shadow
+            mainContainer.setOutlineProvider(ViewOutlineProvider.BACKGROUND);
+        }
+    }
+
     public static void enableLeftDialog(Context context, View rootView) {
         if (context == null || rootView == null || VERSION.SDK_INT <= 19) {
             return;

@@ -20,6 +20,7 @@ import com.liskovsoft.smartyoutubetv2.common.app.presenters.AppDialogPresenter;
 import com.liskovsoft.smartyoutubetv2.common.app.presenters.settings.SponsorBlockSettingsPresenter;
 import com.liskovsoft.smartyoutubetv2.common.prefs.SponsorBlockData;
 import com.liskovsoft.sharedutils.rx.RxHelper;
+import com.liskovsoft.smartyoutubetv2.common.utils.CleanToast;
 import com.liskovsoft.smartyoutubetv2.common.utils.Utils;
 import com.liskovsoft.youtubeapi.service.YouTubeServiceManager;
 import io.reactivex.Observable;
@@ -31,7 +32,8 @@ import java.util.concurrent.TimeUnit;
 
 public class SponsorBlockController extends BasePlayerController {
     private static final String TAG = SponsorBlockController.class.getSimpleName();
-    private static final long POLL_INTERVAL_MS = 1_000;
+    // CLEAN UI: check four times a second (upstream: 1_000). With one check a second up to a second of the segment was played before the skip.
+    private static final long POLL_INTERVAL_MS = 250;
     private static final int CONTENT_BLOCK_ID = 144;
     private MediaItemService mMediaItemService;
     private List<SponsorSegment> mOriginalSegments;
@@ -253,7 +255,9 @@ public class SponsorBlockController extends BasePlayerController {
             return positionMs >= segment.getStartMs() && positionMs <= segment.getEndMs();
         } else {
             long windowSizeMs = (long) (2_000 * getPlayer().getSpeed());
-            return positionMs >= segment.getStartMs() && positionMs <= Math.min(segment.getStartMs() + windowSizeMs, segment.getEndMs());
+            // CLEAN UI: jump just before the segment starts, so that nothing of it is shown
+            long lookAheadMs = (long) (POLL_INTERVAL_MS * getPlayer().getSpeed());
+            return positionMs >= (segment.getStartMs() - lookAheadMs) && positionMs <= Math.min(segment.getStartMs() + windowSizeMs, segment.getEndMs());
         }
     }
 
@@ -271,8 +275,8 @@ public class SponsorBlockController extends BasePlayerController {
             return;
         }
 
-        MessageHelpers.showMessage(getContext(),
-                String.format("%s: %s", getContext().getString(R.string.content_block_provider), getContext().getString(R.string.msg_skipping_segment, category)));
+        // CLEAN UI: compact glass notification instead of the system toast
+        CleanToast.show(getContext(), getContext().getString(R.string.msg_skipping_segment, category));
         setPositionMs(skipPosMs);
         closeTransparentDialog();
     }

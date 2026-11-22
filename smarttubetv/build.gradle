@@ -168,7 +168,7 @@ android {
             targetSdkVersion project.properties.compileSdkVersion
         }
         stfdroid {
-            applicationId "app.smarttube.fdroid"
+            applicationId "app.smarttube.clean" // CLEAN UI fork: own id, installs next to the official app (upstream: app.smarttube.fdroid)
             minSdkVersion 21
             targetSdkVersion project.properties.compileSdkVersion
 

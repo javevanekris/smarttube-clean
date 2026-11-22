@@ -3,6 +3,8 @@ package com.liskovsoft.smartyoutubetv2.tv.presenter;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.Color;
+import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.os.Build.VERSION;
 import android.util.Pair;
@@ -24,6 +26,7 @@ import com.liskovsoft.smartyoutubetv2.common.app.models.data.Video;
 import com.liskovsoft.smartyoutubetv2.common.prefs.MainUIData;
 import com.liskovsoft.smartyoutubetv2.common.utils.ClickbaitRemover;
 import com.liskovsoft.smartyoutubetv2.tv.R;
+import com.liskovsoft.smartyoutubetv2.tv.util.CleanCardHelper;
 import com.liskovsoft.smartyoutubetv2.tv.presenter.base.LongClickPresenter;
 import com.liskovsoft.smartyoutubetv2.tv.ui.browse.video.GridFragmentHelper;
 import com.liskovsoft.smartyoutubetv2.tv.ui.widgets.complexcardview.ComplexImageCardView;
@@ -35,10 +38,15 @@ import com.liskovsoft.smartyoutubetv2.tv.util.ViewUtil;
  */
 public class VideoCardPresenter extends LongClickPresenter {
     private static final String TAG = VideoCardPresenter.class.getSimpleName();
+    private static final Typeface TITLE_TYPEFACE = Typeface.create("sans-serif-medium", Typeface.NORMAL);
+    private static final Typeface CONTENT_TYPEFACE = Typeface.create("sans-serif", Typeface.NORMAL);
     private int mDefaultBackgroundColor = -1;
     private int mDefaultTextColor = -1;
     private int mSelectedBackgroundColor = -1;
     private int mSelectedTextColor = -1;
+    // CLEAN UI
+    private int mDefaultContentColor = -1;
+    private int mSelectedContentColor = -1;
     private int mCardPreviewType;
     private int mThumbQuality;
     private int mWidth;
@@ -51,11 +59,15 @@ public class VideoCardPresenter extends LongClickPresenter {
         mDefaultBackgroundColor =
             ContextCompat.getColor(context, Helpers.getThemeAttr(context, R.attr.cardDefaultBackground));
         mDefaultTextColor =
-                ContextCompat.getColor(context, R.color.card_default_text);
+                ContextCompat.getColor(context, R.color.card_clean_title);
         mSelectedBackgroundColor =
                 ContextCompat.getColor(context, Helpers.getThemeAttr(context, R.attr.cardSelectedBackground));
         mSelectedTextColor =
-                ContextCompat.getColor(context, R.color.card_selected_text_grey);
+                ContextCompat.getColor(context, R.color.card_clean_title_selected);
+        mDefaultContentColor =
+                ContextCompat.getColor(context, R.color.card_clean_content);
+        mSelectedContentColor =
+                ContextCompat.getColor(context, R.color.card_clean_content_selected);
 
         mCardPreviewType = getCardPreviewType(context);
         mThumbQuality = getThumbQuality(context);
@@ -84,7 +96,11 @@ public class VideoCardPresenter extends LongClickPresenter {
         cardView.enableBadge(isBadgeEnabled());
         cardView.enableTitle(isTitleEnabled());
         cardView.enableContent(isContentEnabled());
-        cardView.setBackgroundColor(mDefaultBackgroundColor); // background is temporarily visible during animations
+        // CLEAN UI: no box. The thumbnail is rounded on its own and the text sits on the page background.
+        cardView.setBackgroundColor(Color.TRANSPARENT);
+        if (VERSION.SDK_INT >= 21) {
+            CleanCardHelper.roundThumbnail(cardView.findViewById(R.id.main_image_wrapper));
+        }
         //if (VERSION.SDK_INT >= 23 && MainUIData.instance(context).isUiTweakEnabled(MainUIData.UI_TWEAK_ROUNDED_CORNERS)) {
         //    cardView.setForeground(ContextCompat.getDrawable(context, R.drawable.lb_card_outline));
         //}
@@ -93,26 +109,30 @@ public class VideoCardPresenter extends LongClickPresenter {
     }
 
     private void updateCardBackgroundColor(ComplexImageCardView view, boolean selected) {
-        int backgroundColor = selected ? mSelectedBackgroundColor : mDefaultBackgroundColor;
-        int textColor = selected ? mSelectedTextColor : mDefaultTextColor;
-
-        // Both background colors should be set because the view's
-        // background is temporarily visible during animations.
-        // NOTE: has visual bug with rounded corners
-        //view.setBackgroundColor(backgroundColor);
-
+        // CLEAN UI: the focused card is marked by an outline around the thumbnail (and the card scale),
+        // not by a white box behind the text.
         View infoField = view.findViewById(R.id.info_field);
         if (infoField != null) {
-            infoField.setBackgroundColor(backgroundColor);
+            infoField.setBackgroundColor(Color.TRANSPARENT);
         }
 
         TextView titleText = view.findViewById(R.id.title_text);
         if (titleText != null) {
-            titleText.setTextColor(textColor);
+            titleText.setTextColor(selected ? mSelectedTextColor : mDefaultTextColor);
+            titleText.setTypeface(TITLE_TYPEFACE);
         }
         TextView contentText = view.findViewById(R.id.content_text);
         if (contentText != null) {
-            contentText.setTextColor(textColor);
+            contentText.setTextColor(selected ? mSelectedContentColor : mDefaultContentColor);
+            contentText.setTypeface(CONTENT_TYPEFACE);
+        }
+
+        View thumbnail = view.findViewById(R.id.main_image_wrapper);
+        if (thumbnail != null && VERSION.SDK_INT >= 23) {
+            if (selected && thumbnail.getTag(R.id.main_image_wrapper) == null) {
+                thumbnail.setTag(R.id.main_image_wrapper, CleanCardHelper.createFocusOutline(view.getContext()));
+            }
+            thumbnail.setForeground(selected ? (Drawable) thumbnail.getTag(R.id.main_image_wrapper) : null);
         }
     }
 

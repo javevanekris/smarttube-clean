@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- CLEAN UI: compact glass notification, used when a segment is skipped -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    android:background="@drawable/glass_pill_bg"
+    android:paddingLeft="18dp"
+    android:paddingRight="22dp"
+    android:paddingTop="10dp"
+    android:paddingBottom="10dp">
+
+    <ImageView
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_marginRight="10dp"
+        android:contentDescription="@null"
+        android:src="@drawable/ic_clean_skip" />
+
+    <TextView
+        android:id="@+id/clean_toast_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:maxLines="1"
+        android:ellipsize="end"
+        android:maxWidth="420dp"
+        android:textColor="#F2FFFFFF"
+        android:textSize="15sp"
+        android:fontFamily="sans-serif-medium" />
+</LinearLayout>

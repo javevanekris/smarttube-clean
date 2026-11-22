@@ -23,7 +23,7 @@
             android:shadowDx="1.5"
             android:shadowDy="1.3"
             android:shadowRadius="1.6"
-            android:textStyle="bold"
+            android:textStyle="normal"
             style="?attr/browseTitleTextStyle"
             android:visibility="gone" />
         <com.liskovsoft.smartyoutubetv2.tv.ui.widgets.time.DateTimeView
@@ -36,7 +36,7 @@
             android:shadowDx="1.5"
             android:shadowDy="1.3"
             android:shadowRadius="1.6"
-            android:textStyle="bold"
+            android:textStyle="normal"
             style="?attr/browseTitleTextStyle"
             android:visibility="gone" />
     </LinearLayout>

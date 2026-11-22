@@ -2,10 +2,7 @@ package com.liskovsoft.smartyoutubetv2.tv.ui.mod.leanback.playerglue.tweaks;
 
 import android.content.Context;
 import android.view.View;
-import android.widget.LinearLayout;
-import android.widget.LinearLayout.LayoutParams;
 import androidx.leanback.media.PlayerAdapter;
-import androidx.leanback.widget.AbstractDetailsDescriptionPresenter;
 import androidx.leanback.widget.PlaybackControlsRow;
 import androidx.leanback.widget.PlaybackRowPresenter;
 import androidx.leanback.widget.RowPresenter;
@@ -28,7 +25,6 @@ public abstract class MaxControlsVideoPlayerGlue<T extends PlayerAdapter>
     private Video mVideo;
     private LiveStateProvider mLiveStateProvider;
     private WeakReference<PlaybackTransportRowPresenter.ViewHolder> mTransportViewHolder;
-    private WeakReference<AbstractDetailsDescriptionPresenter.ViewHolder> mDescriptionViewHolder;
 
     /**
      * Constructor for the glue.
@@ -42,48 +38,8 @@ public abstract class MaxControlsVideoPlayerGlue<T extends PlayerAdapter>
 
     @Override
     protected PlaybackRowPresenter onCreateRowPresenter() {
-        final AbstractDetailsDescriptionPresenter detailsPresenter =
-                new AbstractDetailsDescriptionPresenter() {
-                    @Override
-                    protected void onBindDescription(ViewHolder viewHolder, Object obj) {
-                        mDescriptionViewHolder = new WeakReference<>(viewHolder);
-
-                        fixClippedTitle(viewHolder);
-                        //fixOverlappedTitle(viewHolder);
-                        fixThumbOverlapping(viewHolder);
-
-                        PlaybackBaseControlGlue<?> glue = (PlaybackBaseControlGlue<?>) obj;
-                        viewHolder.getTitle().setText(glue.getTitle());
-                        viewHolder.getSubtitle().setText(glue.getSubtitle());
-                        // MOD: add extra title line
-                        //viewHolder.getBody().setText(glue.getBody());
-                    }
-
-                    private void fixOverlappedTitle(ViewHolder viewHolder) {
-                        // Fix overlapped title on big size fonts
-                        Integer titleLineSpacing = (Integer) Helpers.getField(viewHolder, "mTitleLineSpacing");
-                        if (titleLineSpacing != null) {
-                            Helpers.setField(viewHolder, "mTitleLineSpacing", titleLineSpacing * 1.2);
-                        }
-                    }
-
-                    private void fixClippedTitle(ViewHolder viewHolder) {
-                        // Fix clipped title on videos with embedded icons
-                        Helpers.setField(viewHolder, "mTitleMargin", 0);
-                    }
-
-                    /**
-                     * MOD: Also fixes cropped title, subtitle, body
-                     */
-                    private void fixThumbOverlapping(ViewHolder viewHolder) {
-                        LinearLayout.LayoutParams textParam = new LinearLayout.LayoutParams
-                                (LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1.0f);
-
-                        viewHolder.getTitle().setLayoutParams(textParam);
-                        viewHolder.getSubtitle().setLayoutParams(textParam);
-                        viewHolder.getBody().setLayoutParams(textParam);
-                    }
-                };
+        // CLEAN UI: compact title block instead of the large leanback details description
+        final PlayerTitlePresenter detailsPresenter = new PlayerTitlePresenter();
 
         PlaybackTransportRowPresenter rowPresenter = new PlaybackTransportRowPresenter() {
             @Override
@@ -176,9 +132,9 @@ public abstract class MaxControlsVideoPlayerGlue<T extends PlayerAdapter>
         if (getTransportViewHolder() != null) { // the chapter title when show seeking ui
             getTransportViewHolder().setSeekPreviewTitle(title);
         }
-        if (getDescriptionViewHolder() != null) { // the chapter title when show full ui
-            getDescriptionViewHolder().getBody().setText(title);
-            getDescriptionViewHolder().getBody().setVisibility(title != null ? View.VISIBLE: View.GONE);
+        if (getTransportViewHolder() != null
+                && getTransportViewHolder().getDescriptionViewHolder() instanceof PlayerTitlePresenter.ViewHolder) { // the chapter title when show full ui
+            ((PlayerTitlePresenter.ViewHolder) getTransportViewHolder().getDescriptionViewHolder()).setChapter(title);
         }
     }
 
@@ -239,9 +195,6 @@ public abstract class MaxControlsVideoPlayerGlue<T extends PlayerAdapter>
         return mTransportViewHolder != null ? mTransportViewHolder.get() : null;
     }
 
-    private AbstractDetailsDescriptionPresenter.ViewHolder getDescriptionViewHolder() {
-        return mDescriptionViewHolder != null ? mDescriptionViewHolder.get() : null;
-    }
 
     public abstract void onTopEdgeFocused();
 }

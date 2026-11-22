@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- MOD: Focused player button color (default: #66EEEEEE, new: #E8FFFFFF) -->
-    <color name="lb_control_button_color">#86EEEEEE</color>
+    <color name="lb_control_button_color">#4DFFFFFF</color>
 
     <!-- Common colors -->
     <color name="default_background_gradient_start">#000000</color>
@@ -29,12 +29,25 @@
     <color name="icon_background">#4A4F51</color>
     <color name="icon_alt_background">#2A2F51</color>
     <color name="player_background">#FF000000</color>
+    <!-- CLEAN UI: player overlay -->
+    <color name="player_text_primary">#F2FFFFFF</color>
+    <color name="player_text_secondary">#B3FFFFFF</color>
+    <color name="player_text_shadow">#99000000</color>
+    <color name="player_seekbar_track">#40FFFFFF</color>
+    <!-- CLEAN UI: video cards -->
+    <color name="card_clean_title">#E6FFFFFF</color>
+    <color name="card_clean_title_selected">#FFFFFFFF</color>
+    <color name="card_clean_content">#99FFFFFF</color>
+    <color name="card_clean_content_selected">#CCFFFFFF</color>
+    <color name="card_focus_outline">#FFFFFFFF</color>
 
     <!-- Dark color scheme -->
     <color name="scheme_grey_background">#181818</color>
-    <color name="scheme_grey_background_dark">#181818</color>
+    <!-- CLEAN UI: translucent side bar (upstream: #181818) -->
+    <color name="scheme_grey_background_dark">#17FFFFFF</color>
     <color name="scheme_grey_shelf_background_dark">#000000</color>
-    <color name="scheme_grey_card_background_dark">#121212</color>
+    <!-- CLEAN UI: glass chips for channels, search tags and settings tiles (upstream: #121212) -->
+    <color name="scheme_grey_card_background_dark">#1FFFFFFF</color>
 
     <!-- Red color scheme -->
     <color name="scheme_red_background">#131313</color>
@@ -60,8 +73,9 @@
     <color name="foreground_material_light_mod">@android:color/black</color>
 
     <!-- Default Orb buttons colors: search, accounts, search settings etc -->
-    <color name="orb_color">@color/grey</color>
-    <color name="orb_bright_color">@color/grey</color>
+    <!-- CLEAN UI: glass buttons in the title bar (upstream: @color/grey) -->
+    <color name="orb_color">#26FFFFFF</color>
+    <color name="orb_bright_color">#40FFFFFF</color>
     <color name="orb_icon_color">@color/white</color>
 
     <!-- Search page mic button color -->

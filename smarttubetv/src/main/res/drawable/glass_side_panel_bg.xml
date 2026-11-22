@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- CLEAN UI: glass side panel (settings and dialogs). Dark tint, a soft sheen and a hairline on the left edge only. -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="#D1101216" />
+        </shape>
+    </item>
+    <item>
+        <shape android:shape="rectangle">
+            <gradient
+                android:angle="0"
+                android:startColor="#24FFFFFF"
+                android:endColor="#08FFFFFF"
+                android:type="linear" />
+        </shape>
+    </item>
+    <!-- The other three edges of the stroke are pushed outside the panel -->
+    <item android:top="-2dp" android:right="-2dp" android:bottom="-2dp">
+        <shape android:shape="rectangle">
+            <solid android:color="@android:color/transparent" />
+            <stroke android:width="1dp" android:color="#40FFFFFF" />
+        </shape>
+    </item>
+</layer-list>

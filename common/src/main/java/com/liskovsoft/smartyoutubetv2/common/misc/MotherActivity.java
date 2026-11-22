@@ -9,7 +9,10 @@ import android.os.Build.VERSION;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.view.KeyCharacterMap.UnavailableException;
+import android.graphics.Rect;
 import android.view.KeyEvent;
+import android.view.View;
+import android.view.ViewGroup;
 import android.view.MotionEvent;
 
 import androidx.annotation.NonNull;
@@ -144,7 +147,8 @@ public class MotherActivity extends FragmentActivity {
         }
 
         try {
-            return super.dispatchKeyEvent(event);
+            // CLEAN UI: move the focus ourselves, so the system does not play its click sound on every key press
+            return super.dispatchKeyEvent(event) || moveFocusSilently(event);
         } catch (NullPointerException | IllegalArgumentException | IllegalStateException | SecurityException | UnavailableException e) {
             // NullPointerException: 'android.view.Window androidx.core.app.ComponentActivity.getWindow()' on a null object reference
             // IllegalArgumentException: View is not a direct child of HorizontalGridView
@@ -155,6 +159,58 @@ public class MotherActivity extends FragmentActivity {
             e.printStackTrace();
             return false;
         }
+    }
+
+    /**
+     * CLEAN UI: handles a D-pad press that nothing else handled by moving the focus, like the system would.
+     * The system plays a navigation sound on each move (when "system sounds" are on). This way it stays quiet.
+     */
+    private boolean moveFocusSilently(KeyEvent event) {
+        if (event.getAction() != KeyEvent.ACTION_DOWN || !event.hasNoModifiers()) {
+            return false;
+        }
+
+        int direction;
+
+        switch (event.getKeyCode()) {
+            case KeyEvent.KEYCODE_DPAD_LEFT:
+                direction = View.FOCUS_LEFT;
+                break;
+            case KeyEvent.KEYCODE_DPAD_RIGHT:
+                direction = View.FOCUS_RIGHT;
+                break;
+            case KeyEvent.KEYCODE_DPAD_UP:
+                direction = View.FOCUS_UP;
+                break;
+            case KeyEvent.KEYCODE_DPAD_DOWN:
+                direction = View.FOCUS_DOWN;
+                break;
+            default:
+                return false;
+        }
+
+        View focused = getCurrentFocus();
+
+        if (focused == null) {
+            return false;
+        }
+
+        View next = focused.focusSearch(direction);
+
+        if (next == null || next == focused) {
+            return false;
+        }
+
+        View root = getWindow().getDecorView();
+        Rect rect = new Rect();
+        focused.getFocusedRect(rect);
+
+        if (root instanceof ViewGroup) {
+            ((ViewGroup) root).offsetDescendantRectToMyCoords(focused, rect);
+            ((ViewGroup) root).offsetRectIntoDescendantCoords(next, rect);
+        }
+
+        return next.requestFocus(direction, rect);
     }
 
     @Override

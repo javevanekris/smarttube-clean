@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- CLEAN UI: compact title block of the player overlay -->
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <TextView
+        android:id="@+id/player_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:maxLines="2"
+        android:ellipsize="end"
+        style="@style/PlayerTitleText" />
+
+    <TextView
+        android:id="@+id/player_subtitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/player_subtitle_margin_top"
+        android:maxLines="1"
+        android:ellipsize="end"
+        style="@style/PlayerSubtitleText" />
+
+    <!-- Current chapter, only shown for videos with chapters -->
+    <TextView
+        android:id="@+id/player_chapter"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/player_subtitle_margin_top"
+        android:maxLines="1"
+        android:ellipsize="end"
+        android:visibility="gone"
+        style="@style/PlayerSubtitleText" />
+</LinearLayout>

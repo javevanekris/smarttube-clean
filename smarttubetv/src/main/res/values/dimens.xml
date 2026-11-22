@@ -134,4 +134,32 @@
     <dimen name="tooltip_vertical_padding_mod">6.5dp</dimen>
     <dimen name="tooltip_y_offset_non_touch_mod">0dp</dimen>
     <dimen name="tooltip_y_offset_touch_mod">16dp</dimen>
+
+    <!-- CLEAN UI: player overlay -->
+    <!-- Thinner seek bar (leanback default: 4dp / 6dp / 6dp) -->
+    <dimen name="lb_playback_transport_progressbar_bar_height">3dp</dimen>
+    <dimen name="lb_playback_transport_progressbar_active_bar_height">5dp</dimen>
+    <dimen name="lb_playback_transport_progressbar_active_radius">7dp</dimen>
+    <!-- Title sits close to the seek bar (leanback default: 20dp) -->
+    <dimen name="lb_playback_transport_control_info_margin_bottom">2dp</dimen>
+    <dimen name="player_title_text_size">22sp</dimen>
+    <dimen name="player_subtitle_text_size">14sp</dimen>
+    <dimen name="player_subtitle_margin_top">2dp</dimen>
+    <dimen name="player_time_text_size">14sp</dimen>
+    <dimen name="player_time_row_margin_top">-4dp</dimen>
+    <dimen name="player_time_separator_margin">6dp</dimen>
+    <dimen name="player_info_item_margin">16dp</dimen>
+    <!-- Align the first/last icon with the ends of the seek bar: -(button width - icon width) / 2 -->
+    <!-- Round focus highlight on the playback buttons instead of a cropped 90x64 oval (leanback default: 90dp / 64dp) -->
+    <dimen name="lb_control_button_diameter">56dp</dimen>
+    <dimen name="lb_control_button_height">56dp</dimen>
+    <dimen name="player_primary_controls_edge_margin">-12dp</dimen>
+    <dimen name="player_secondary_controls_edge_margin">-8dp</dimen>
+    <!-- CLEAN UI: video cards -->
+    <dimen name="card_focus_outline_width">3dp</dimen>
+    <!-- CLEAN UI: glass panel around the player controls. Margin + padding = browse padding (56dp), so the title stays aligned. -->
+    <dimen name="player_panel_margin_horizontal">36dp</dimen>
+    <dimen name="player_panel_padding_horizontal">20dp</dimen>
+    <dimen name="player_panel_padding_top">4dp</dimen>
+    <dimen name="player_panel_padding_bottom">8dp</dimen>
 </resources>
