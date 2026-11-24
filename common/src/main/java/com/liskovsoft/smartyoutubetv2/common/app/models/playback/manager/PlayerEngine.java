@@ -17,6 +17,10 @@ public interface PlayerEngine extends PlayerConstants {
     void openMerged(InputStream dashManifest, String hlsPlaylistUrl);
     long getPositionMs();
     void setPositionMs(long positionMs);
+    /**
+     * CLEAN UI: ask the player to buffer this much ahead of the playback position. Zero for nothing special.
+     */
+    void setBufferAheadMs(long durationMs);
     long getDurationMs();
     void setPlayWhenReady(boolean play);
     boolean getPlayWhenReady();
