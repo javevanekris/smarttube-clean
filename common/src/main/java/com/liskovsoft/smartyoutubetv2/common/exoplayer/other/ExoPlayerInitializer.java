@@ -34,6 +34,7 @@ public class ExoPlayerInitializer {
     private VolumeBooster mVolumeBooster;
     private float mVolumeBoost;
     private SimpleExoPlayer mPlayer;
+    private SegmentAwareLoadControl mLoadControl;
     private static AudioAttributes sAudioAttributes;
 
     public ExoPlayerInitializer(Context context) {
@@ -49,7 +50,9 @@ public class ExoPlayerInitializer {
     }
 
     public SimpleExoPlayer createPlayer(Context context, DefaultRenderersFactory renderersFactory, DefaultTrackSelector trackSelector) {
-        DefaultLoadControl loadControl = createLoadControl();
+        // CLEAN UI: can load past a segment that is about to be skipped
+        SegmentAwareLoadControl loadControl = new SegmentAwareLoadControl(createLoadControl(), getSegmentPreloadMaxBytes());
+        mLoadControl = loadControl;
 
         // HDR fix?
         //trackSelector.setParameters(trackSelector.buildUponParameters().setTunnelingAudioSessionId(C.generateAudioSessionIdV21(context)));
@@ -185,6 +188,27 @@ public class ExoPlayerInitializer {
             // Also, live stream (dash) seeking fix
             player.setSeekParameters(SeekParameters.CLOSEST_SYNC);
         }
+    }
+
+    /**
+     * CLEAN UI: how much media has to be buffered ahead of the playback position. Zero for nothing special.
+     */
+    public void setBufferAheadMs(long durationMs) {
+        if (mLoadControl != null) {
+            mLoadControl.setRequiredBufferMs(durationMs);
+        }
+    }
+
+    /**
+     * CLEAN UI: the extra loading stays within the memory the biggest buffer setting may use.
+     * It is off for the smallest buffer, which is picked for streams and devices that can't take more.
+     */
+    private long getSegmentPreloadMaxBytes() {
+        if (mPlayerData.getVideoBufferType() == PlayerData.BUFFER_LOW) {
+            return 0;
+        }
+
+        return Math.min(mMaxBufferBytes, Runtime.getRuntime().maxMemory() / 3);
     }
 
     public float getVolumeBoost() {

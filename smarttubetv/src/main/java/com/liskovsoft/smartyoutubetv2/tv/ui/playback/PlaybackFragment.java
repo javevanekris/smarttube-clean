@@ -996,6 +996,13 @@ public class PlaybackFragment extends SeekModePlaybackFragment implements Playba
     }
 
     @Override
+    public void setBufferAheadMs(long durationMs) {
+        if (mPlayerInitializer != null) {
+            mPlayerInitializer.setBufferAheadMs(durationMs);
+        }
+    }
+
+    @Override
     public long getDurationMs() {
         return mExoPlayerController.getDurationMs();
     }

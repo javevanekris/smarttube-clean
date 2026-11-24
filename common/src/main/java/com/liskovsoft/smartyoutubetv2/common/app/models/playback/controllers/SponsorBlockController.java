@@ -34,6 +34,7 @@ import java.util.concurrent.TimeUnit;
 public class SponsorBlockController extends BasePlayerController {
     private static final String TAG = SponsorBlockController.class.getSimpleName();
     // CLEAN UI: check four times a second (upstream: 1_000). With one check a second up to a second of the segment was played before the skip.
+    // The skip itself doesn't wait for a check: a timer fires at the moment the segment starts, see planAhead.
     private static final long POLL_INTERVAL_MS = 250;
     private static final int CONTENT_BLOCK_ID = 144;
     private MediaItemService mMediaItemService;
@@ -48,6 +49,12 @@ public class SponsorBlockController extends BasePlayerController {
     private static final long UNDO_WINDOW_MS = 4_000;
     private SponsorSegment mUndoSegment;
     private long mUndoDeadlineMs;
+    // CLEAN UI: runs the check at the moment a segment starts
+    private final Runnable mPreciseCheck = () -> {
+        if (getPlayer() != null) {
+            skipSegment(0);
+        }
+    };
 
     public static class SegmentAction {
         public String segmentCategory;
@@ -95,6 +102,7 @@ public class SponsorBlockController extends BasePlayerController {
     public void onNewVideo(Video item) {
         mUndoSegment = null;
         mSkipExclude = false;
+        cancelPlan();
         if (getPlayer() != null) {
             getPlayer().setSeekBarSegments(null); // reset colors
         }
@@ -221,6 +229,7 @@ public class SponsorBlockController extends BasePlayerController {
 
     private void disposeActions() {
         RxHelper.disposeActions(mSegmentsAction);
+        cancelPlan();
 
         // Note, removes all segments at once
         //getPlayer().setSeekBarSegments(null); // reset colors
@@ -235,12 +244,14 @@ public class SponsorBlockController extends BasePlayerController {
             return;
         }
 
+        long positionMs = getPlayer().getPositionMs();
+
         // Fix looping messages at the end of the video (playback mode: pause at the end of the video)
         if (!getPlayer().isPlaying()) {
+            // CLEAN UI: keep the buffer in step with the position, the viewer may seek while paused
+            planBuffer(positionMs);
             return;
         }
-
-        long positionMs = getPlayer().getPositionMs();
 
         List<SponsorSegment> foundSegments = findMatchedSegments(positionMs, mActiveSegments, false);
 
@@ -249,6 +260,62 @@ public class SponsorBlockController extends BasePlayerController {
         // Skip each segment only once
         if (foundSegments != null && getSponsorBlockData().isDontSkipSegmentAgainEnabled()) {
             mActiveSegments.removeAll(foundSegments);
+        }
+
+        // CLEAN UI: after a skip the position is stale, the next check plans from the new one
+        if (foundSegments == null) {
+            planAhead(positionMs);
+        }
+    }
+
+    /**
+     * CLEAN UI: prepare the next skip, so that it happens on time and without a download.
+     */
+    private void planAhead(long positionMs) {
+        List<SponsorSegment> skippedSegments = planBuffer(positionMs);
+
+        // The poll is too coarse to hit the start of a segment. Wake up at that very moment instead.
+        long delayMs = SegmentSkipPlanner.delayToNextStartMs(positionMs, getPlayer().getSpeed(), skippedSegments, POLL_INTERVAL_MS);
+
+        if (delayMs >= 0) {
+            Utils.postDelayed(mPreciseCheck, delayMs);
+        }
+    }
+
+    /**
+     * CLEAN UI: have the player load past the segments that are about to be skipped. The jump then lands in the buffer.
+     * @return the segments that get skipped without asking
+     */
+    private List<SponsorSegment> planBuffer(long positionMs) {
+        List<SponsorSegment> skippedSegments = getSkippedSegments();
+
+        // Same rule as in applyActions: shorter segments stay in the video
+        long ignoredDurationMs = Math.max(getSponsorBlockData().getIgnoredDurationMs(), getPlayerTweaksData().isTextureViewEnabled() ? 10_000 : 0);
+
+        getPlayer().setBufferAheadMs(SegmentSkipPlanner.requiredBufferMs(positionMs, getPlayer().getSpeed(), skippedSegments, ignoredDurationMs));
+
+        return skippedSegments;
+    }
+
+    private List<SponsorSegment> getSkippedSegments() {
+        List<SponsorSegment> result = new ArrayList<>();
+
+        for (SponsorSegment segment : mActiveSegments) {
+            int action = getSponsorBlockData().getAction(segment.getCategory());
+
+            if (action == SponsorBlockData.ACTION_SKIP_ONLY || action == SponsorBlockData.ACTION_SKIP_WITH_TOAST) {
+                result.add(segment);
+            }
+        }
+
+        return result;
+    }
+
+    private void cancelPlan() {
+        Utils.removeCallbacks(mPreciseCheck);
+
+        if (getPlayer() != null) {
+            getPlayer().setBufferAheadMs(0);
         }
     }
 
@@ -260,9 +327,10 @@ public class SponsorBlockController extends BasePlayerController {
         if (fullMatch) {
             return positionMs >= segment.getStartMs() && positionMs <= segment.getEndMs();
         } else {
-            long windowSizeMs = (long) (2_000 * getPlayer().getSpeed());
-            // CLEAN UI: jump just before the segment starts, so that nothing of it is shown
-            long lookAheadMs = (long) (POLL_INTERVAL_MS * getPlayer().getSpeed());
+            long windowSizeMs = (long) (SegmentSkipPlanner.SKIP_WINDOW_MS * getPlayer().getSpeed());
+            // CLEAN UI: jump just before the segment starts, so that nothing of it is shown.
+            // A timer brings us here at the right moment (see planAhead), so two frames of margin are enough.
+            long lookAheadMs = (long) (SegmentSkipPlanner.EARLY_TOLERANCE_MS * getPlayer().getSpeed());
             return positionMs >= (segment.getStartMs() - lookAheadMs) && positionMs <= Math.min(segment.getStartMs() + windowSizeMs, segment.getEndMs());
         }
     }
